@@ -22,9 +22,6 @@ namespace eso
         Positive,
     };
 
-    // template<typename T>
-    // concept Number = std::integral<T> || <T>;
-
     template<std::floating_point T>
     struct Range
     {
@@ -74,14 +71,13 @@ namespace eso
                       const ui8 InOctave = DEFAULT_OCTAVE,
                       const float InSpread = DEFAULT_SPREAD,
                       const ui32 InSeed = DEFAULT_SEED)
-            : Seed(InSeed)
-            , PerlinNoise(Seed)
-            , Counter(0)
+            : Counter(0)
+            , Octave(InOctave)
+            , Spread(InSpread)
+            , PerlinNoise({InSeed})
             , ValueRange(InRange)
             , AbsMin(Abs(ValueRange.Min))
             , AbsMax(Abs(ValueRange.Max))
-            , Octave(InOctave)
-            , Spread(InSpread)
         {
             InitNoiseDelegate();
         }
@@ -90,14 +86,13 @@ namespace eso
                       const ui8 InOctave = DEFAULT_OCTAVE,
                       const float InSpread = DEFAULT_SPREAD,
                       const ui32 InSeed = DEFAULT_SEED)
-            : Seed(InSeed)
-            , PerlinNoise(Seed)
-            , Counter(0)
+            : Counter(0)
+            , Octave(InOctave)
+            , Spread(InSpread)
+            , PerlinNoise({InSeed})
             , ValueRange(InMin, InMax)
             , AbsMin(Abs(ValueRange.Min))
             , AbsMax(Abs(ValueRange.Max))
-            , Octave(InOctave)
-            , Spread(InSpread)
         {
             InitNoiseDelegate();
         }
@@ -124,7 +119,7 @@ namespace eso
         }
 
         [[nodiscard]]
-        const char* GetRangeType() const
+        const char* GetRangeTypeAsText() const
         {
             switch (ValueRange.RangeType)
             {
@@ -140,17 +135,36 @@ namespace eso
             return "fuck";
         }
 
-        void ResetInternalCounter()
+        // Sets a new value range
+        void UpdateRange(const Ty RangeMin, const Ty RangeMax)
         {
-            Counter = 0;
+            ValueRange = Range(RangeMin, RangeMax);
+            AbsMin = Abs(ValueRange.Min);
+            AbsMax = Abs(ValueRange.Max);
+        }
+
+        void UpdateRange(const Range<Ty> InRange)
+        {
+            ValueRange = InRange;
+            AbsMin = Abs(ValueRange.Min);
+            AbsMax = Abs(ValueRange.Max);
+        }
+
+        void UpdateSeed(const ui32 InSeed)
+        {
+            PerlinNoise.reseed(InSeed);
+        }
+
+        Range<Ty> GetValueRange() const
+        {
+            return ValueRange;
         }
 
     private:
-        
-// Narrowing conversion literally doesn't matter here
-// As the Spread value's precision isn't very important
+
 #pragma warning(push)
 #pragma warning(disable:4244)
+        // Narrowing conversion literally doesn't matter here as the Spread value's precision isn't very important
         void InitNoiseDelegate()
         {
             switch(ValueRange.RangeType)
@@ -190,19 +204,17 @@ namespace eso
             }
             return Output;
         }
-        
-    private:
-        siv::PerlinNoise::seed_type Seed;
-        siv::PerlinNoise PerlinNoise;
-        
+
+    public:
         ui32 Counter;
-        Range<Ty> ValueRange;
-        Ty AbsMin;
-        Ty AbsMax;
-        
         ui8 Octave;
         float Spread;
         
+    private:
+        siv::PerlinNoise PerlinNoise;
+        Range<Ty> ValueRange;
+        Ty AbsMin;
+        Ty AbsMax;
         std::function<Ty(i32, i32, float)> NoiseDelegate;
     };
 }
