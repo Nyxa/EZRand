@@ -2,25 +2,29 @@
 
 #include <format>
 #include <iostream>
+#include <chrono>
 
-#define OUTPUT_VALUES 1
+#define OUTPUT_VALUES 0
 
 int main()
 {
-    constexpr double RangeMin = -500.0;
-    constexpr double RangeMax = -50.0;
+    using RngType = float;
+    constexpr RngType RangeMin = -500.0;
+    constexpr RngType RangeMax = -50.0;
     
-    eso::Rand<double> Randomizer(RangeMin, RangeMax);
+    eso::Rand<RngType> Randomizer(RangeMin, RangeMax);
 
-    constexpr int IterCount = 60;
+    constexpr int IterCount = 600000;
     std::cout << std::format("Computing {} random values with Min: {} | Max: {}\n", IterCount, RangeMin, RangeMax);
     std::cout << "Range type is: " << Randomizer.GetRangeType() << "\n";
 
-    double MaxOutput = RangeMin;
-    double MinOutput = RangeMax;
+    RngType MaxOutput = RangeMin;
+    RngType MinOutput = RangeMax;
+
+    const auto ClockStart = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < IterCount; ++i)
     {
-        const double Output = Randomizer.Get(i);
+        const RngType Output = Randomizer.GetNext();
         if (MaxOutput < Output)
             MaxOutput = Output;
         if (MinOutput > Output)
@@ -33,6 +37,11 @@ int main()
         std::cout << " | " << Output;
 #endif
     }
+    const auto ClockEnd = std::chrono::high_resolution_clock::now();
+    const auto ExecutionTime = ClockEnd - ClockStart;
+    const auto ExecutionTimeMS = std::chrono::duration_cast<std::chrono::milliseconds>(ExecutionTime);
+    const auto ExecutionTimeUS = std::chrono::duration_cast<std::chrono::microseconds>(ExecutionTime);
 
     std::cout << std::format("\nMin output: {} | Max output: {}", MinOutput, MaxOutput);
+    std::cout << std::format("\nExecuted in: {} | {}", ExecutionTimeMS, ExecutionTimeUS);
 }

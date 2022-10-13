@@ -22,10 +22,10 @@ namespace eso
         Positive,
     };
 
-    template<typename T>
-    concept Number = std::integral<T> || std::floating_point<T>;
+    // template<typename T>
+    // concept Number = std::integral<T> || <T>;
 
-    template<Number T>
+    template<std::floating_point T>
     struct Range
     {
         T Min;
@@ -44,30 +44,36 @@ namespace eso
                 Max = MaxTemp;
             }
 
-            if (Min >= 0.0)
+            constexpr T Zero = static_cast<T>(0.0);
+
+            if (Min >= Zero)
                 RangeType = ERangeType::Positive;
-            else if (Min < 0.0 && Max < 0.0)
+            else if (Min < Zero && Max < Zero)
                 RangeType = ERangeType::Negative;
             else
                 RangeType = ERangeType::Balanced;
         }
     };
 
-    template<Number T>
+    template<std::floating_point T>
     constexpr T Abs(const T x)
     {
-        return (x < 0.0 ? x * -1.0 : x);
+        return (x < 0 ? x * -1 : x);
     }
 
-    template<Number Ty>
+    template<std::floating_point Ty>
     class Rand
     {
+        static constexpr ui8 DEFAULT_OCTAVE = 2;
+        static constexpr float DEFAULT_SPREAD = 1.35f;
+        static constexpr ui32 DEFAULT_SEED = 69u;
+        
     public:
         
-        explicit Rand(const Range<Ty> InRange = Range(static_cast<Ty>(0.0), static_cast<Ty>(1.0)),
-                      const ui8 InOctave = 2,
-                      const double InSpread = 1.35,
-                      const ui32 InSeed = 69u)
+        explicit Rand(const Range<Ty> InRange = {static_cast<Ty>(0), static_cast<Ty>(1)},
+                      const ui8 InOctave = DEFAULT_OCTAVE,
+                      const float InSpread = DEFAULT_SPREAD,
+                      const ui32 InSeed = DEFAULT_SEED)
             : Seed(InSeed)
             , PerlinNoise(Seed)
             , Counter(0)
@@ -80,10 +86,10 @@ namespace eso
             InitNoiseDelegate();
         }
         
-        explicit Rand(const double InMin = 0.0, const double InMax = 1.0,
-                      const ui8 InOctave = 2,
-                      const double InSpread = 1.35,
-                      const ui32 InSeed = 69u)
+        explicit Rand(const Ty InMin = 0, const Ty InMax = 1,
+                      const ui8 InOctave = DEFAULT_OCTAVE,
+                      const float InSpread = DEFAULT_SPREAD,
+                      const ui32 InSeed = DEFAULT_SEED)
             : Seed(InSeed)
             , PerlinNoise(Seed)
             , Counter(0)
@@ -130,10 +136,21 @@ namespace eso
             case Negative:
                 return "Negative";
             }
+            
             return "fuck";
         }
 
+        void ResetInternalCounter()
+        {
+            Counter = 0;
+        }
+
     private:
+        
+// Narrowing conversion literally doesn't matter here
+// As the Spread value's precision isn't very important
+#pragma warning(push)
+#pragma warning(disable:4244)
         void InitNoiseDelegate()
         {
             switch(ValueRange.RangeType)
@@ -142,15 +159,16 @@ namespace eso
 
             case Positive:
             case Negative:
-                NoiseDelegate = [this](const i32 a, const i32 b, const double c) { return PerlinNoise.octave1D_01(a, b, c); };
+                NoiseDelegate = [this](const i32 a, const i32 b, const float c) { return PerlinNoise.octave1D_01(a, b, c); };  // NOLINT(clang-diagnostic-double-promotion)
                 break;
             case Balanced:
-                NoiseDelegate = [this](const i32 a, const i32 b, const double c) { return PerlinNoise.octave1D_11(a, b, c); };
+                NoiseDelegate = [this](const i32 a, const i32 b, const float c) { return PerlinNoise.octave1D_11(a, b, c); };  // NOLINT(clang-diagnostic-double-promotion)
             }
         }
+#pragma warning(pop)
         
         [[nodiscard]]
-        Ty ComputeOutput(const double Input) const
+        Ty ComputeOutput(const Ty Input) const
         {
             Ty Output{};
             switch (ValueRange.RangeType)
@@ -174,16 +192,17 @@ namespace eso
         }
         
     private:
-        const siv::PerlinNoise::seed_type Seed;
-        const siv::PerlinNoise PerlinNoise;
+        siv::PerlinNoise::seed_type Seed;
+        siv::PerlinNoise PerlinNoise;
         
         ui32 Counter;
-        const Range<Ty> ValueRange;
-        const Ty AbsMin;
-        const Ty AbsMax;
-        ui8 Octave;
-        double Spread;
+        Range<Ty> ValueRange;
+        Ty AbsMin;
+        Ty AbsMax;
         
-        std::function<Ty(i32, i32, double)> NoiseDelegate;
+        ui8 Octave;
+        float Spread;
+        
+        std::function<Ty(i32, i32, float)> NoiseDelegate;
     };
 }
