@@ -217,4 +217,11 @@ namespace eso
         Ty AbsMax;
         std::function<Ty(i32, i32, float)> NoiseDelegate;
     };
+
+    template<std::integral Ty>
+    class Rand
+    {
+        
+    };
+    
 }

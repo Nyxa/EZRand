@@ -156,11 +156,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\EsoRand.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Source\EsoRand.hpp" />
-    <ClInclude Include="Source\PerlinNoise.hpp" />
+    <ClInclude Include="EsoRand\EsoRand.hpp" />
+    <ClInclude Include="EsoRand\PerlinNoise.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
