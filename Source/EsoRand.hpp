@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "PerlinNoise/PerlinNoise.hpp"
+#include "PerlinNoise.hpp"
 #include <functional>
 
 namespace eso
