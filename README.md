@@ -1,4 +1,4 @@
-# EsoRand
+# EZRand
 Simple RNG library using Perlin Noise.
 All it does is add some functionality around a noise library to make it nice for obtaining random values given a specified range.
 
@@ -12,7 +12,7 @@ This is a pretty lightweight header-only file, so you can just drop it into your
 ```cpp    
 // Create a float randomizer with a range of -100/100
 // Additional parameters may also be added, such as a custom seed, octave, and spread. What they do is explained below.
-eso::Rand Randomizer(-100.f, 100.f);
+ez::Rand Randomizer(-100.f, 100.f);
 
 // Returns random value using internal counter as the index, and progresses said counter.
 Randomizer.GetNext();
