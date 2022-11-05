@@ -26,7 +26,6 @@ Randomizer.Get(42);
 // Access internal counter directly.
 // The internal counter is just a simple integer that may or may not increment.
 // It allows you to repeatedly call the randomizer without having to worry about what index you're at.
-// Note that, if all other parameters remain unchanged, 
 Randomizer.Counter = 42;
 
 // Modify Octave parameter. This affects the resolution of the output, meaning a higher octave will give a smoother distribution.
