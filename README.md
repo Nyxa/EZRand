@@ -2,11 +2,14 @@
 Simple RNG library using Perlin Noise.
 All it does is add some functionality around a noise library to make it nice for obtaining random values given a specified range.
 
+This being noise-based will mean that given the same parameters (seed, octave, spread, range, index), it will always output the same thing. **This is intentional**. I created this library as a helper for game RNG where randomness needs to be replicable. Still, given an arbitrary seed, you can have seemingly random numbers each time the program is run. The default seed does this - it simply uses the time at which the application was launched to determine the seed, producing random values each time the program is ran.
+
+Note that this library uses C++20 concepts to restrict the randomizer to floating point types only. I may one day do a version that won't compile without numeric literals, but for now this library only works with C++20.
+
+This is a pretty lightweight header-only file, so you can just drop it into your project without any issues.
+
 # Usage
-```cpp
-// NOTE: C++20 required.
-// This is a header-only library, so simply include the EsoRand folder in your project dependencies to use it.
-    
+```cpp    
 // Create a float randomizer with a range of -100/100
 // Additional parameters may also be added, such as a custom seed, octave, and spread. What they do is explained below.
 eso::Rand Randomizer(-100.f, 100.f);
@@ -51,4 +54,4 @@ Randomizer.GetRangeTypeAsText();
 // The randomizer only accepts floating-point types.
 eso::Rand IntRandomizer(1, 100); // Won't compile.
 
-// If you want random integers, you can simply cast the output to an int. ```
+// If you want random integers, you can simply cast the output to an int.
