@@ -504,12 +504,12 @@ namespace siv
 # undef SIVPERLIN_CONCEPT_URBG
 # undef SIVPERLIN_CONCEPT_URBG_
 
-// -- EsoRand starts here
+// -- EzRand starts here
 
 #include <functional>
 #include <chrono>
 
-namespace eso
+namespace ez
 {
     using ui8  = uint8_t;
     using ui16 = uint16_t;
